@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.program.simplelauncher" name="Simple Launcher" version="1.0.19" provider-name="mourogers">
+<addon id="plugin.program.simplelauncher" name="Simple Launcher" version="1.0.20" provider-name="mourogers">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
     </requires>

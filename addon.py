@@ -149,12 +149,10 @@ class SimpleLauncher:
             list_item.setArt({
                 'thumb': program['image'],
                 'icon': program['image'],
+                'poster': program['image'],
+                'landscape': program['image'],
                 'fanart': program['fanart']
             })
-
-            # Set poster as well, which might be used in some views
-            list_item.setArt({'poster': program['image']})
-
             list_item.setInfo('video', {
                 'title': program['title'],
                 'year': program['year'],
