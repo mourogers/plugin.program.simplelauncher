@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.program.simplelauncher" name="Simple Launcher" version="1.0.19" provider-name="mourogers">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="addon.py">
+        <provides>executable</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Launch programs from Kodi</summary>
+        <description lang="en_GB">A decidedly un-advanced addon to launch Windows, Linux, or macOS programs from within Kodi.</description>
+        <platform>all</platform>
+        <license>MIT</license>
+        <assets>
+            <icon>icon.png</icon>
+        </assets>
+        <forum></forum>
+        <website></website>
+        <email></email>
+        <source></source>
+    </extension>
+</addon>
