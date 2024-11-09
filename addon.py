@@ -29,7 +29,7 @@ class SimpleLauncher:
         with open(self.programs_file, 'w') as f:
             json.dump(programs, f)
 
-    def add_program(self, title, year, description, image, fanart, path):
+    def add_program(self, title, year, description, image, fanart, clearlogo, path):
         programs = self.get_programs()
         programs.append({
             'title': title,
@@ -37,6 +37,7 @@ class SimpleLauncher:
             'description': description,
             'image': image,
             'fanart': fanart,
+            'clearlogo': clearlogo,
             'path': path,
             'lastplayed': 0
         })
@@ -53,6 +54,7 @@ class SimpleLauncher:
         description = dialog.input("Enter description", defaultt=program['description'])
         image = dialog.browse(2, "Select thumbnail image", "files", ".jpg|.png", defaultt=program['image'])
         fanart = dialog.browse(2, "Select fanart image", "files", ".jpg|.png", defaultt=program['fanart'])
+        clearlogo = dialog.browse(2, "Select clearlogo image", "files", ".png", defaultt=program.get('clearlogo', ''))
         path = dialog.browse(1, "Select program", "files", defaultt=program['path'])
 
         if title and path:
@@ -62,20 +64,7 @@ class SimpleLauncher:
                 'description': description,
                 'image': image,
                 'fanart': fanart,
-                'path': path,
-                'lastplayed': program['lastplayed']
-            }
-            self.save_programs(programs)
-            xbmcgui.Dialog().notification("Success", f"Updated program: {title}", xbmcgui.NOTIFICATION_INFO, 5000)
-        else:
-            xbmcgui.Dialog().notification("Error", "Failed to update program", xbmcgui.NOTIFICATION_ERROR, 5000)
-        if title and path:
-            programs[index] = {
-                'title': title,
-                'year': year,
-                'description': description,
-                'image': image,
-                'fanart': fanart,
+                'clearlogo': clearlogo,
                 'path': path,
                 'lastplayed': program['lastplayed']
             }
@@ -121,10 +110,11 @@ class SimpleLauncher:
         description = dialog.input("Enter description")
         image = dialog.browse(2, "Select thumbnail image", "files", ".jpg|.png")
         fanart = dialog.browse(2, "Select fanart image", "files", ".jpg|.png")
+        clearlogo = dialog.browse(2, "Select clearlogo image", "files", ".png")
         path = dialog.browse(1, "Select program", "files")
 
         if title and path:
-            self.add_program(title, year, description, image, fanart, path)
+            self.add_program(title, year, description, image, fanart, clearlogo, path)
             xbmcgui.Dialog().notification("Success", f"Added program: {title}", xbmcgui.NOTIFICATION_INFO, 5000)
         else:
             xbmcgui.Dialog().notification("Error", "Failed to add program", xbmcgui.NOTIFICATION_ERROR, 5000)
@@ -145,14 +135,21 @@ class SimpleLauncher:
         for index, program in enumerate(programs):
             list_item = xbmcgui.ListItem(label=program['title'])
 
-            # Explicitly set thumbnail, icon, and fanart
-            list_item.setArt({
+            # Expanded art dictionary to include clearlogo
+            art_dict = {
                 'thumb': program['image'],
                 'icon': program['image'],
                 'poster': program['image'],
                 'landscape': program['image'],
                 'fanart': program['fanart']
-            })
+            }
+
+            # Add clearlogo if it exists
+            if program.get('clearlogo'):
+                art_dict['clearlogo'] = program['clearlogo']
+
+            list_item.setArt(art_dict)
+
             list_item.setInfo('video', {
                 'title': program['title'],
                 'year': program['year'],
