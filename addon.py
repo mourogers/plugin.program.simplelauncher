@@ -9,6 +9,7 @@ import subprocess
 import sys
 import urllib.parse
 import time
+import subprocess
 
 class SimpleLauncher:
     def __init__(self):
@@ -93,7 +94,59 @@ class SimpleLauncher:
         if xbmc.getCondVisibility('system.platform.windows'):
             os.startfile(path)
         elif xbmc.getCondVisibility('system.platform.linux'):
-            subprocess.Popen(['xdg-open', path])
+            try:
+                import os
+                import re
+                import subprocess
+                
+                xbmc.log(f"Attempting to launch desktop file: {path}", level=xbmc.LOGINFO)
+                
+                # Parse the .desktop file to extract the Exec command
+                try:
+                    with open(path, 'r') as f:
+                        desktop_content = f.readlines()
+                    
+                    exec_cmd = None
+                    for line in desktop_content:
+                        if line.startswith('Exec='):
+                            exec_cmd = line[5:].strip()
+                            break
+                    
+                    if exec_cmd:
+                        xbmc.log(f"Found Exec command: {exec_cmd}", level=xbmc.LOGINFO)
+                        
+                        # Check if it's a Steam URL
+                        if 'steam://' in exec_cmd:
+                            xbmc.log("Detected Steam URL, handling specifically", level=xbmc.LOGINFO)
+                            
+                            # Extract the Steam URL
+                            steam_url_match = re.search(r'steam://\S+', exec_cmd)
+                            if steam_url_match:
+                                steam_url = steam_url_match.group(0)
+                                xbmc.log(f"Extracted Steam URL: {steam_url}", level=xbmc.LOGINFO)
+                                
+                                # Launch the Steam URL using flatpak-spawn
+                                subprocess.Popen(['flatpak-spawn', '--host', 'xdg-open', steam_url])
+                                xbmc.log(f"Launched Steam URL with xdg-open: {steam_url}", level=xbmc.LOGINFO)
+                            else:
+                                # If we couldn't extract the URL, just run the command
+                                subprocess.Popen(['flatpak-spawn', '--host', 'sh', '-c', exec_cmd])
+                                xbmc.log(f"Launched full command: {exec_cmd}", level=xbmc.LOGINFO)
+                        else:
+                            # Not a Steam URL, just run the command normally
+                            subprocess.Popen(['flatpak-spawn', '--host', 'sh', '-c', exec_cmd])
+                            xbmc.log(f"Launched command: {exec_cmd}", level=xbmc.LOGINFO)
+                    else:
+                        xbmc.log("No Exec line found in .desktop file, falling back to xdg-open", level=xbmc.LOGERROR)
+                        subprocess.Popen(['flatpak-spawn', '--host', 'xdg-open', path])
+                except Exception as e:
+                    xbmc.log(f"Error processing .desktop file: {e}", level=xbmc.LOGERROR)
+                    # Fall back to xdg-open
+                    subprocess.Popen(['flatpak-spawn', '--host', 'xdg-open', path])
+            except Exception as e:
+                xbmc.log(f"All launch methods failed: {e}", level=xbmc.LOGERROR)
+                print(f"An error occurred while trying to launch: {e}")
+                
         elif xbmc.getCondVisibility('system.platform.osx'):
             subprocess.Popen(['open', path])
 
